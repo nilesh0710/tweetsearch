@@ -18,18 +18,22 @@ export default class Search extends Component {
         const search_query = event.target.value;
         // console.log( (search_query));
 
-
-
-    }
-
-    obtainData(event) {
         client.search({
+            // refresh: true,
             index: 'tweet',
             type: 'tweet',
-            size: 100,
+            size: 1000,
             body: {
                 query: {
-                    match: {"text" : search_query }
+                    // match: {"text" : search_query }
+                    // match: {"user_id" : search_query}
+                    "bool": {
+                        "should": [
+                            { "match": { "text" : search_query }},
+                            { "match": {"user_id" : search_query}},
+                            { "match": {"date" : search_query}}
+                        ]
+                    }
                 },
             }
         }, (error, response, status) => {
@@ -44,13 +48,19 @@ export default class Search extends Component {
                         console.log("test message")
                         // console.log(hit._source);
 
-                        this.setState({results: hit._source})
+                        this.setState({results: this.state.results.concat([hit._source])})
                     }.bind(this)
 
+
                 )
+
             }
+            console.log(this.state.results);
         })
+
+
     }
+
 
     handledataChange(event) {
         const data = event.target.data
